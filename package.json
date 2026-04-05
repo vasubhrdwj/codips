@@ -1,0 +1,15 @@
+{
+  "name": "fastapi-nextjs-scaffold",
+  "version": "1.0.0",
+  "description": "Scaffolding for a FastAPI and Next.js project",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && source .venv/bin/activate && uvicorn app.main:app --reload",
+    "dev": "npx concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "install:all": "npm install --prefix frontend && pip install -r backend/requirements.txt",
+    "test:backend": "cd backend && source .venv/bin/activate && pytest"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
