@@ -120,17 +120,24 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
 
       {/* Dynamic Rank Image Box */}
       <div className="w-[440px] bg-zinc-950/30 border border-zinc-800 relative overflow-hidden font-mono flex shrink-0 items-center justify-center p-2">
-        <img 
-          key={currentImage}
-          src={currentImage} 
-          alt={rank.title} 
-          className="max-w-full max-h-full object-contain drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity"
-          onError={(e) => {
-            if (currentImage !== "/raw-conscript.png") {
-              setCurrentImage("/raw-conscript.png");
-            }
-          }}
-        />
+        <picture>
+          {/* As a bulletproof fallback before hydration, we load raw-conscript natively if primary fails */}
+          <img 
+            ref={(img) => {
+              if (img && img.complete && img.naturalHeight === 0 && currentImage !== "/raw-conscript.png") {
+                setCurrentImage("/raw-conscript.png");
+              }
+            }}
+            src={currentImage} 
+            alt={rank.title} 
+            className="max-w-full max-h-full object-contain drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity"
+            onError={() => {
+              if (currentImage !== "/raw-conscript.png") {
+                setCurrentImage("/raw-conscript.png");
+              }
+            }}
+          />
+        </picture>
       </div>
     </div>
   );
