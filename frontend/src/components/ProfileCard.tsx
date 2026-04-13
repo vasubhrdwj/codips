@@ -1,3 +1,6 @@
+"use client";
+import { useState, useEffect } from "react";
+
 type Profile = {
   handle: string;
   rating: number | null;
@@ -10,19 +13,36 @@ type Profile = {
 
 export default function ProfileCard({ profile }: { profile: Profile }) {
   const ratingPercent = Math.round(((profile.rating || 0) / 3500) * 100);
+  const [emoji, setEmoji] = useState("⚔️");
+
+  useEffect(() => {
+    const fetchEmoji = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/api/v1/rank/${profile.rating || 0}`);
+        if (res.ok) {
+          const data = await res.json();
+          setEmoji(data.emoji);
+        }
+      } catch (e) {
+        console.error("Failed to fetch emoji", e);
+      }
+    };
+    fetchEmoji();
+  }, [profile.rating]);
 
   return (
-    <div className="w-[440px] bg-zinc-950 border border-zinc-800 relative overflow-hidden font-mono">
-      
+    <div className="flex gap-6 items-stretch max-w-full overflow-x-auto p-4 shrink-0">
+      <div className="w-[440px] bg-zinc-950 border border-zinc-800 relative overflow-hidden font-mono shrink-0">
+
       {/* Header */}
       <div className="px-6 py-5 border-b border-zinc-800 flex items-center gap-4">
         <div className="relative">
           <div className="w-14 h-14 bg-zinc-900 border-2 border-blue-500 flex items-center justify-center text-2xl">
-            ⚔️
+            {emoji}
           </div>
-          <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white text-[9px] font-bold px-1.5 py-0.5 uppercase tracking-wider">
+          {/* <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white text-[9px] font-bold px-1.5 py-0.5 uppercase tracking-wider">
             {profile.rank || "UNRATED"}
-          </span>
+          </span> */}
         </div>
         <div>
           <h2 className="text-xl font-bold text-zinc-100 tracking-tight">
@@ -86,6 +106,14 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
           <span className="text-[10px] text-zinc-600 tracking-widest uppercase">Active · Codeforces</span>
         </div>
         <span className="text-[10px] text-zinc-700">CF/{profile.handle}</span>
+      </div>
+      </div>
+
+      {/* Empty Skeleton Box */}
+      <div className="w-[440px] bg-zinc-950/30 border border-zinc-800 border-dashed relative overflow-hidden font-mono flex flex-col shrink-0 items-center justify-center">
+        <div className="w-10 h-10 border-2 border-zinc-800 rounded-lg animate-pulse mb-4"></div>
+        <span className="text-zinc-600 text-xs tracking-widest uppercase mb-1">// Incoming Data</span>
+        <span className="text-zinc-800 text-[10px] uppercase">Awaiting connection...</span>
       </div>
     </div>
   );
