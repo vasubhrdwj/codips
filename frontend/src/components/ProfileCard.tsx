@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { getRank, isFallenGeneral } from "@/lib/ranks";
 
 type Profile = {
   handle: string;
@@ -12,8 +13,16 @@ type Profile = {
 };
 
 export default function ProfileCard({ profile }: { profile: Profile }) {
+  const rank = getRank(profile.rating);
+  const fallen = isFallenGeneral(profile.rating, profile.maxRating);
   const ratingPercent = Math.round(((profile.rating || 0) / 3500) * 100);
+  const targetImageSrc = `/${rank.title.toLowerCase().replace(/\s+/g, '-')}.png`;
+  const [currentImage, setCurrentImage] = useState(targetImageSrc);
   const [emoji, setEmoji] = useState("⚔️");
+
+  useEffect(() => {
+    setCurrentImage(targetImageSrc);
+  }, [targetImageSrc]);
 
   useEffect(() => {
     const fetchEmoji = async () => {
@@ -109,11 +118,19 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
       </div>
       </div>
 
-      {/* Empty Skeleton Box */}
-      <div className="w-[440px] bg-zinc-950/30 border border-zinc-800 border-dashed relative overflow-hidden font-mono flex flex-col shrink-0 items-center justify-center">
-        <div className="w-10 h-10 border-2 border-zinc-800 rounded-lg animate-pulse mb-4"></div>
-        <span className="text-zinc-600 text-xs tracking-widest uppercase mb-1">// Incoming Data</span>
-        <span className="text-zinc-800 text-[10px] uppercase">Awaiting connection...</span>
+      {/* Dynamic Rank Image Box */}
+      <div className="w-[440px] bg-zinc-950/30 border border-zinc-800 relative overflow-hidden font-mono flex shrink-0 items-center justify-center p-2">
+        <img 
+          key={currentImage}
+          src={currentImage} 
+          alt={rank.title} 
+          className="max-w-full max-h-full object-contain drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity"
+          onError={(e) => {
+            if (currentImage !== "/raw-conscript.png") {
+              setCurrentImage("/raw-conscript.png");
+            }
+          }}
+        />
       </div>
     </div>
   );
